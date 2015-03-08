@@ -1,0 +1,3 @@
+[submodule "cog"]
+	path = cog
+	url = https://github.com/fosskers/cog.git
