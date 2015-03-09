@@ -6,6 +6,17 @@ COMPILATION
 -----------
 Just `make`.
 
+### On Ubuntu
+
+    sudo apt-get install libglfw3-dev libglew-dev clang
+    make
+
+**Note:** `libglfw3-dev` is not available in Trusty's repositories. You can
+either build it from source, grab it from Utopic's repos or install it from
+Keith Winstein's PPA:
+
+    sudo add-apt-repository ppa:keithw/glfw3
+
 USAGE
 -----
 LEFT  - Move the block left.
