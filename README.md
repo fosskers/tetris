@@ -19,11 +19,17 @@ Keith Winstein's PPA:
 
 USAGE
 -----
+
 LEFT  - Move the block left.
+
 RIGHT - Move the block right.
+
 DOWN  - Move the block down faster.
+
 UP    - Spin the block.
+
 R     - Reset the game.
+
 C     - Reset the camera.
 
 CAMERA CONTROLS
