@@ -57,7 +57,6 @@ Fruit board[BOARD_CELLS];  // The Board, represented as Fruits.
 // --- //
 
 /* Move Camera with WASD */
-/* DEPRECIATED
 void moveCamera() {
         cogcMove(camera,
                  deltaTime,
@@ -66,7 +65,6 @@ void moveCamera() {
                  keys[GLFW_KEY_A],
                  keys[GLFW_KEY_D]);
 }
-*/
 
 /* Init/Reset the Camera */
 void resetCamera() {
@@ -115,8 +113,10 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                         glfwSetWindowShouldClose(w, GL_TRUE);
                 } else if(key == GLFW_KEY_P) {
                         if(running) {
+                                log_info("Game paused.");
                                 running = false;
                         } else {
+                                log_info("Game unpaused.");
                                 running = true;
                         }
                 } else if(key == GLFW_KEY_C) {
@@ -712,7 +712,7 @@ int main(int argc, char** argv) {
                 lastFrame = currentFrame;
 
                 glfwPollEvents();
-                //moveCamera();
+                moveCamera();
                 
                 glClearColor(0.5f,0.5f,0.5f,1.0f);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
