@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 
-typedef enum { None, Grape, Apple, Banana, Pear, Orange } Fruit;
+typedef enum { None, Purple, Red, Yellow, Green, Orange } Colour;
 
 typedef struct block_t {
         // Block Shape/Rotation
@@ -13,8 +13,8 @@ typedef struct block_t {
         // Block's grid coordinates (coord of C block)
         int x;
         int y;
-        // Block Colours
-        Fruit* fs;
+        // Block Colour
+        Colour c;
         // Which Block is it?
         char name;
 } block_t;
@@ -36,11 +36,11 @@ block_t* newL();
 /* Create a O block (a square) in the default position */
 block_t* newO();
 
-/* Generate four random Fruits */
-Fruit* randFruits();
+/* Generate a random Colour */
+Colour randColour();
 
-/* Get the colour of a Fruit. Cannot fail */
-GLfloat* fruitColour(Fruit f);
+/* Get the float values for a Colour. Cannot fail */
+GLfloat* ctof(Colour c);
 
 /* Generate a random Block */
 block_t* randBlock();
@@ -50,9 +50,6 @@ block_t* rotateBlock(block_t* b);
 
 /* Yield a list of grid-space coordinates occupied by the Block */
 int* blockCells(block_t* b);
-
-/* Shuffle the order of the fruits */
-block_t* shuffleFruit(block_t* b);
 
 /* Copy a Block */
 block_t* copyBlock(block_t* b);

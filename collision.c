@@ -5,15 +5,15 @@
 // --- //
 
 /* Is the given Block colliding with the world? */
-Collision isColliding(block_t* b, Fruit* fs) {
+Collision isColliding(block_t* b, Colour* board) {
         int* cells = blockCells(b);
 
-        if(collidingDown(cells, fs)) {
+        if(collidingDown(cells, board)) {
                 return Bottom;
-        } else if(collidingLeft(cells,fs)) {
+        } else if(collidingLeft(cells,board)) {
                 return Left;
                 
-        } else if(collidingRight(cells,fs)) {
+        } else if(collidingRight(cells,board)) {
                 return Right;
         }
         else {
@@ -22,12 +22,12 @@ Collision isColliding(block_t* b, Fruit* fs) {
 }
 
 /* In which direction is the Block colliding? */
-bool collidingLeft(int* cells, Fruit* fs) {
+bool collidingLeft(int* cells, Colour* board) {
         int i;
 
         for(i = 0; i < 8; i+=2) {
                 if(cells[i] == 0 ||
-                   fs[cells[i] - 1 + cells[i+1] * 10] != None) {
+                   board[cells[i] - 1 + cells[i+1] * 10] != None) {
                         return true;
                 }
         }
@@ -35,12 +35,12 @@ bool collidingLeft(int* cells, Fruit* fs) {
         return false;
 }
 
-bool collidingRight(int* cells, Fruit* fs) {
+bool collidingRight(int* cells, Colour* board) {
         int i;
 
         for(i = 0; i < 8; i+=2) {
                 if(cells[i] == 9 ||
-                   fs[cells[i] + 1 + cells[i+1] * 10] != None) {
+                   board[cells[i] + 1 + cells[i+1] * 10] != None) {
                         return true;
                 }
         }
@@ -48,12 +48,12 @@ bool collidingRight(int* cells, Fruit* fs) {
         return false;
 }
 
-bool collidingDown(int* cells, Fruit* fs) {
+bool collidingDown(int* cells, Colour* board) {
         int i;
 
         for(i = 0; i < 8; i+=2) {
                 if(cells[i+1] == 0 ||
-                   fs[cells[i] + (cells[i+1] - 1) * 10] != None) {
+                   board[cells[i] + (cells[i+1] - 1) * 10] != None) {
                         return true;
                 }
         }

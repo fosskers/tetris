@@ -37,15 +37,14 @@ block_t* newI() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Fruit* fs = randFruits();
-        check(fs, "Failed to generate Fruits.");
+        Colour c = randColour();
         
         b->coords = &iBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->fs = fs;
+        b->c = c;
         b->name = 'I';
 
         return b;
@@ -58,15 +57,14 @@ block_t* newS() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Fruit* fs = randFruits();
-        check(fs, "Failed to generate Fruits.");
+        Colour c = randColour();
 
         b->coords = &sBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->fs = fs;
+        b->c = c;
         b->name = 'S';
 
         return b;
@@ -79,15 +77,14 @@ block_t* newZ() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Fruit* fs = randFruits();
-        check(fs, "Failed to generate Fruits.");
+        Colour c = randColour();
 
         b->coords = &zBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->fs = fs;
+        b->c = c;
         b->name = 'Z';
 
         return b;
@@ -100,15 +97,14 @@ block_t* newL() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Fruit* fs = randFruits();
-        check(fs, "Failed to generate Fruits.");
+        Colour c = randColour();
 
         b->coords = &lBlock[0][0];
         b->variations = 4;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->fs = fs;
+        b->c = c;
         b->name = 'L';
 
         return b;
@@ -121,15 +117,14 @@ block_t* newO() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Fruit* fs = randFruits();
-        check(fs, "Failed to generate Fruits.");
+        Colour c = randColour();
 
         b->coords = &oBlock[0][0];
         b->variations = 1;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->fs = fs;
+        b->c = c;
         b->name = 'O';
 
         return b;
@@ -137,35 +132,26 @@ block_t* newO() {
         return NULL;
 }
 
-/* Generate four random Fruits */
-Fruit* randFruits() {
-        int i;
-        Fruit* fs = malloc(sizeof(Fruit) * 4);
-        check_mem(fs);
-
-        // There are five Fruit types available, so we mod5.
-        for(i = 0; i < 4; i++) {
-                fs[i] = (rand() % 5) + 1;
-        }
- error:
-        return fs;
+/* Generate a random Colour */
+Colour randColour() {
+        return (rand() % 5) + 1;
 }
 
 /* Get the colour of a Fruit. Cannot fail */
-GLfloat* fruitColour(Fruit f) {
+GLfloat* ctof(Colour c) {
         GLfloat* colour = NULL;
 
-        switch(f) {
-        case Grape:
+        switch(c) {
+        case Purple:
                 colour = purple;
                 break;
-        case Apple:
+        case Red:
                 colour = red;
                 break;
-        case Banana:
+        case Yellow:
                 colour = yellow;
                 break;
-        case Pear:
+        case Green:
                 colour = green;
                 break;
         case Orange:
@@ -254,25 +240,9 @@ int* blockCells(block_t* b) {
         return NULL;
 }
 
-/* Shuffle the order of the fruits */
-block_t* shuffleFruit(block_t* b) {
-        check(b, "Null Block given.");
-
-        Fruit d = b->fs[3];
-        b->fs[3] = b->fs[2];
-        b->fs[2] = b->fs[1];
-        b->fs[1] = b->fs[0];
-        b->fs[0] = d;
-
-        return b;
- error:
-        return NULL;
-}
-
 /* Copy a Block */
 block_t* copyBlock(block_t* b) {
         block_t* newB = NULL;
-        int i;
 
         check(b, "Null Block given.");
 
@@ -284,13 +254,7 @@ block_t* copyBlock(block_t* b) {
         newB->curr = b->curr;
         newB->x = b->x;
         newB->y = b->y;
-        newB->fs = malloc(sizeof(Fruit) * 4);
-        check_mem(newB->fs);
-        
-        for(i = 0; i < 4; i++) {
-                newB->fs[i] = b->fs[i];
-        }
-
+        newB->c = b->c;
         newB->name = b->name;
 
         return newB;
@@ -300,8 +264,9 @@ block_t* copyBlock(block_t* b) {
 
 /* Deallocate a Block */
 void destroyBlock(block_t* b) {
-        if(b) {
-                free(b->fs);
-                free(b);
-        }
+        check(b, "Cannot destroy NULL Block.");
+        free(b);
+
+ error:
+        return;
 }

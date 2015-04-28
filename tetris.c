@@ -52,7 +52,7 @@ GLfloat lastKey   = 0.0f;
 camera_t* camera;
 matrix_t* view;
 block_t*  block;   // The Tetris block.
-Fruit board[BOARD_CELLS];  // The Board, represented as Fruits.
+Colour board[BOARD_CELLS];  // The Board, represented as colours.
 
 // --- //
 
@@ -146,9 +146,6 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                         } else {
                                 debug("Flip would collide!");
                         }
-                } else if(key == GLFW_KEY_SPACE) {
-                        block = shuffleFruit(block);
-                        refreshBlock();
                 }
         } else if(action == GLFW_RELEASE) {
                 keys[key] = false;
@@ -159,9 +156,9 @@ void mouse_callback(GLFWwindow* w, double xpos, double ypos) {
         cogcPan(camera,xpos,ypos);
 }
 
-GLfloat* gridLocToCoords(int x, int y, Fruit f) {
+GLfloat* gridLocToCoords(int x, int y, Colour colour) {
         GLfloat* coords = NULL;
-        GLfloat* c      = fruitColour(f);
+        GLfloat* c      = ctof(colour);
         GLuint i;
         // TODO: This is wrong.
         GLfloat temp[CELL_FLOATS] = {
@@ -222,7 +219,7 @@ GLfloat* gridLocToCoords(int x, int y, Fruit f) {
         coords = malloc(sizeof(GLfloat) * CELL_FLOATS);
         check_mem(coords);
 
-        if(f == None) {
+        if(colour == None) {
                 // Nullify all the coordinates
                 for(i = 0; i < CELL_FLOATS; i++) {
                         temp[i] = 0.0;
@@ -252,16 +249,16 @@ GLfloat* blockToCoords() {
         // Coords and colours for each cell.
         GLfloat* a = gridLocToCoords(block->x+block->coords[0],
                                      block->y+block->coords[1],
-                                     block->fs[0]);
+                                     block->c);
         GLfloat* b = gridLocToCoords(block->x+block->coords[2],
                                      block->y+block->coords[3],
-                                     block->fs[1]);
+                                     block->c);
         GLfloat* c = gridLocToCoords(block->x,
                                      block->y,
-                                     block->fs[2]);
+                                     block->c);
         GLfloat* d = gridLocToCoords(block->x+block->coords[4],
                                      block->y+block->coords[5],
-                                     block->fs[3]);
+                                     block->c);
 
         check(a && b && c && d, "Couldn't get Cell coordinates.");
 
@@ -537,79 +534,12 @@ void lineCheck() {
         }
 }
 
-/* Removes sets of 3 matching Fruits, if it can */
-void fruitCheck() {
-        int i,j,k;
-        Fruit curr;
-        Fruit streakF = None;
-        int streakN;
-
-        // Check columns
-        for(i = 0; i < 10; i++) {
-                streakN = 1;
-
-                for(j = 0; j < 20; j++) {
-                        curr = board[i + j*10];
-
-                        if(curr != None && curr == streakF) {
-                                streakN++;
-
-                                if(streakN == 3) {
-                                        board[i + j*10] = None;
-                                        board[i + (j-1)*10] = None;
-                                        board[i + (j-2)*10] = None;
-
-                                        for(j = j+1; j < 20; j++) {
-                                                board[i+(j-3)*10] = board[i+j*10];
-                                        }
-                                        break;
-                                }
-                        } else {
-                                streakF = curr;
-                                streakN = 1;
-                        }
-                }
-        }
-
-        // Check rows
-        for(j = 0; j < 20; j++) {
-                streakN = 1;
-
-                for(i = 0; i < 10; i++) {
-                        curr = board[i + j*10];
-
-                        if(curr != None && curr == streakF) {
-                                streakN++;
-
-                                if(streakN == 3) {
-                                        board[i + j*10] = None;
-                                        board[i-1 + j*10] = None;
-                                        board[i-2 + j*10] = None;
-
-                                        for(k = j+1; k < 20; k++) {
-                                                board[i-2 + (k-1)*10] = board[i-2 + k*10];
-                                        }
-                                        for(k = j+1; k < 20; k++) {
-                                                board[i-1 + (k-1)*10] = board[i-1 + k*10];
-                                        }
-                                        for(k = j+1; k < 20; k++) {
-                                                board[i + (k-1)*10] = board[i + k*10];
-                                        }
-                                }
-                        } else {
-                                streakF = curr;
-                                streakN = 1;
-                        }
-                }
-        }
-}
-
 /* Scrolls the Block naturally down */
 void scrollBlock() {
         static double lastTime = 0;
         double currTime = glfwGetTime();
         int* cells = NULL;
-        int i,j;
+        int i;
 
         if(!running) {
                 return;
@@ -636,12 +566,11 @@ void scrollBlock() {
                 cells = blockCells(block);
 
                 // Add the Block's cells to the master Board
-                for(i = 0,j=0; i < 8; i+=2,j++) {
-                        board[cells[i] + 10*cells[i+1]] = block->fs[j];
+                for(i = 0; i < 8; i+=2) {
+                        board[cells[i] + 10*cells[i+1]] = block->c;
                 }
 
                 lineCheck();
-                fruitCheck();
                 newBlock();
                 refreshBoard();
         }
