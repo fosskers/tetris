@@ -24,11 +24,11 @@ int oBlock[1][6] = {{ -1,0, -1,-1, 0,-1 }};
 
 // Fruit Colours
 GLfloat black[]  = { 0.0, 0.0, 0.0 };
-GLfloat purple[] = { 1.0, 0.0, 1.0 };
-GLfloat red[]    = { 1.0, 0.0, 0.0 };
-GLfloat yellow[] = { 1.0, 1.0, 0.0 };
-GLfloat green[]  = { 0.0, 1.0, 0.0 };
-GLfloat orange[] = { 1.0, 0.5, 0.0 };
+GLfloat purple[] = { 0.76, 0.41, 0.99 };
+GLfloat red[]    = { 1.0,  0.56, 0.56 };
+GLfloat yellow[] = { 1.0,  1.0,  0.52 };
+GLfloat green[]  = { 0.66, 0.99, 0.56 };
+GLfloat orange[] = { 1.0,  0.78, 0.28 };
 
 // --- //
 
@@ -36,15 +36,13 @@ GLfloat orange[] = { 1.0, 0.5, 0.0 };
 block_t* newI() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
-
-        Colour c = randColour();
         
         b->coords = &iBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = c;
+        b->c = Purple;
         b->name = 'I';
 
         return b;
@@ -57,14 +55,12 @@ block_t* newS() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Colour c = randColour();
-
         b->coords = &sBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = c;
+        b->c = Red;
         b->name = 'S';
 
         return b;
@@ -77,14 +73,12 @@ block_t* newZ() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Colour c = randColour();
-
         b->coords = &zBlock[0][0];
         b->variations = 2;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = c;
+        b->c = Yellow;
         b->name = 'Z';
 
         return b;
@@ -97,14 +91,12 @@ block_t* newL() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Colour c = randColour();
-
         b->coords = &lBlock[0][0];
         b->variations = 4;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = c;
+        b->c = Green;
         b->name = 'L';
 
         return b;
@@ -117,14 +109,12 @@ block_t* newO() {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
 
-        Colour c = randColour();
-
         b->coords = &oBlock[0][0];
         b->variations = 1;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = c;
+        b->c = Orange;
         b->name = 'O';
 
         return b;
