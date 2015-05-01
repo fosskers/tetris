@@ -2,20 +2,22 @@
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 colour;
+layout (location = 2) in vec3 normal;
 
+out vec3 FragPos;
+out vec3 LightPos;
+out vec3 Normal;
+out vec3 vColour;
+
+uniform vec3 lightPos;
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
-out vec4 vColour;
-
 void main() {
-        // Used to scale the entire game.
-        mat4 scale = mat4(2.0/450, 	0.0, 		0.0,     0.0,
-			  0.0,  	2.0/450, 	0.0,     0.0,
-			  0.0, 		0.0, 		2.0/450, 0.0,
-			  0.0, 		0.0, 		0.0,     1.0 );
-
-        gl_Position = proj * view * scale * (vec4(position, 1.0) +
-                                             vec4(-200, -360, 0, 0));
-        vColour = vec4(colour,1.0);
+        gl_Position = proj * view * model * vec4(position, 1.0);
+        FragPos     = vec3(view * model * vec4(position,1.0));
+        LightPos    = vec3(view * vec4(lightPos,1.0));
+        Normal      = mat3(transpose(inverse(view * model))) * normal;
+        vColour     = colour;
 }

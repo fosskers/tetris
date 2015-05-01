@@ -25,8 +25,8 @@ int refreshBoard();
 // --- //
 
 #define BOARD_CELLS 200
-// 6 floats per vertex, 3 vertices per triangle, 12 triangles per Cell
-#define CELL_FLOATS 6 * 3 * 12
+// 9 floats per vertex, 3 vertices per triangle, 12 triangles per Cell
+#define CELL_FLOATS 9 * 3 * 12
 #define TOTAL_FLOATS BOARD_CELLS * CELL_FLOATS
 
 bool gameOver = false;
@@ -160,56 +160,56 @@ GLfloat* gridLocToCoords(int x, int y, Colour colour) {
         GLfloat* coords = NULL;
         GLfloat* c      = ctof(colour);
         GLuint i;
-        // TODO: This is wrong.
+
         GLfloat temp[CELL_FLOATS] = {
                 // Back T1
-                33 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
+                33 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1,
+                33 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1,
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1,
                 // Back T2
-                33 + x*33, 66 + y*33,  0, c[0], c[1], c[2], 
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
+                33 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1, 
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1,
+                66 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 0, -1,
                 // Front T1
-                33 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
+                33 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
+                66 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
                 // Front T2
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2], 
-                66 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
+                66 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
+                66 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2], 0, 0, 1,
                 // Left T1
-                33 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
+                33 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], -1, 0, 0,
+                33 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], -1, 0, 0,
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  -1, 0, 0,
                 // Left T2
-                33 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                33 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
+                33 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], -1, 0, 0,
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  -1, 0, 0,
+                33 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2],  -1, 0, 0,
                 // Right T1
-                66 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
+                66 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 1, 0, 0,
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 1, 0, 0,
+                66 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  1, 0, 0,
                 // Right T2
-                66 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
+                66 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  1, 0, 0,
+                66 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2],  1, 0, 0,
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 1, 0, 0,
                 // Top T1
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  0, 1, 0,
+                66 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  0, 1, 0,
+                66 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 1, 0,
                 // Top T2
-                33 + x*33, 66 + y*33, 33, c[0], c[1], c[2],
-                33 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 66 + y*33,  0, c[0], c[1], c[2],
+                33 + x*33, 66 + y*33, 16.5, c[0], c[1], c[2],  0, 1, 0,
+                33 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 1, 0,
+                66 + x*33, 66 + y*33, -16.5, c[0], c[1], c[2], 0, 1, 0,
                 // Bottom T1
-                33 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
+                33 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2],  0, -1, 0,
+                66 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2],  0, -1, 0,
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, -1, 0,
                 // Bottom T2
-                33 + x*33, 33 + y*33, 33, c[0], c[1], c[2],
-                33 + x*33, 33 + y*33,  0, c[0], c[1], c[2],
-                66 + x*33, 33 + y*33,  0, c[0], c[1], c[2]
+                33 + x*33, 33 + y*33, 16.5, c[0], c[1], c[2],  0, -1, 0,
+                33 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, -1, 0,
+                66 + x*33, 33 + y*33, -16.5, c[0], c[1], c[2], 0, -1, 0
         };
 
         check(x > -1 && x < 10 &&
@@ -296,14 +296,21 @@ int initBlock() {
                      CELL_FLOATS * 4 * sizeof(GLfloat),coords,
                      GL_DYNAMIC_DRAW);
 
-        // Tell OpenGL how to process Block Vertices
+        /* Tell OpenGL how to process Block Vertices */
+        // Vertex location
         glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,
-                              6 * sizeof(GLfloat),(GLvoid*)0);
+                              9 * sizeof(GLfloat),(GLvoid*)0);
         glEnableVertexAttribArray(0);
+        // Vertex colour
         glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,
-                              6 * sizeof(GLfloat),
+                              9 * sizeof(GLfloat),
                               (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(1);
+        // Vertex normal
+        glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
         glBindVertexArray(0);  // Reset the VAO binding.
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -441,14 +448,21 @@ void initBoard() {
                      temp,
                      GL_DYNAMIC_DRAW);
         
-        // Tell OpenGL how to process Block Vertices
+        /* Tell OpenGL how to process Block Vertices */
+        // Vertex location
         glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,
-                              6 * sizeof(GLfloat),(GLvoid*)0);
+                              9 * sizeof(GLfloat),(GLvoid*)0);
         glEnableVertexAttribArray(0);
+        // Vertex colour
         glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,
-                              6 * sizeof(GLfloat),
+                              9 * sizeof(GLfloat),
                               (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(1);
+        // Vertex normal
+        glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
         glBindVertexArray(0);  // Reset the VAO binding.
         //        glBindBuffer(GL_ARRAY_BUFFER, 0);
         
@@ -603,7 +617,7 @@ int main(int argc, char** argv) {
         // Depth Testing
         glEnable(GL_DEPTH_TEST);
 
-        // Create Shader Program
+        /* Create Shader Program */
         debug("Making shader program.");
         shaders_t* shaders = cogsShaders("vertex.glsl", "fragment.glsl");
         GLuint shaderProgram = cogsProgram(shaders);
@@ -611,25 +625,40 @@ int main(int argc, char** argv) {
         check(shaderProgram > 0, "Shaders didn't compile.");
         debug("Shaders good.");
 
+        /* Initial randomness */
         srand((GLuint)(100000 * glfwGetTime()));
-
-        // Initialize Board, Grid, and first Block
+        
+        /* Initialize Board, Grid, and first Block */
         initBoard();
         initGrid();
         quiet_check(initBlock());
 
-        // Set initial Camera state
+        /* Set initial Camera state */
         resetCamera();
+
+        /* Model Matrix for Game */
+        matrix_t* model = coglMIdentity(4);
+        model = coglM4Translate(model,-200,-360,0);
+        model = coglMScale(model,2.0/450);
+        check(model, "Model creation failed.");
         
-        // Projection Matrix
+        /* Projection Matrix */
         matrix_t* proj = coglMPerspectiveP(tau/8, 
                                            (float)wWidth/(float)wHeight,
                                            0.1f,1000.0f);
 
+        /* Lighting settings */
+        glUseProgram(shaderProgram);
+        matrix_t* lightPos = coglV3(1.2f,1.0f,2.0f);
+        GLuint lghtLoc = glGetUniformLocation(shaderProgram,"lightPos");
+        GLuint modlLoc = glGetUniformLocation(shaderProgram,"model");
+        GLuint viewLoc = glGetUniformLocation(shaderProgram,"view");
+        GLuint projLoc = glGetUniformLocation(shaderProgram,"proj");
+        
+        /* The current time since starting */
         GLfloat currentFrame;
         
         debug("Entering Loop.");
-        // Render until you shouldn't.
         while(!glfwWindowShouldClose(w)) {
                 if(gameOver) {
                         sleep(1);
@@ -642,23 +671,23 @@ int main(int argc, char** argv) {
 
                 glfwPollEvents();
                 moveCamera();
-                
-                glClearColor(0.5f,0.5f,0.5f,1.0f);
+
+                glClearColor(0.1f,0.1f,0.1f,1.0f);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 glUseProgram(shaderProgram);
 
                 // Move the block down.
                 scrollBlock();
-                
-                GLuint viewLoc = glGetUniformLocation(shaderProgram,"view");
-                GLuint projLoc = glGetUniformLocation(shaderProgram,"proj");
 
                 // Update View Matrix
                 coglMDestroy(view);
                 view = coglM4LookAtP(camera->pos,camera->tar,camera->up);
 
                 // Set transformation Matrices
+                glUniform3f(lghtLoc,lightPos->m[0],
+                            lightPos->m[1],lightPos->m[2]);
+                glUniformMatrix4fv(modlLoc,1,GL_FALSE,model->m);
                 glUniformMatrix4fv(viewLoc,1,GL_FALSE,view->m);
                 glUniformMatrix4fv(projLoc,1,GL_FALSE,proj->m);
 
@@ -680,7 +709,7 @@ int main(int argc, char** argv) {
                 // Always comes last.
                 glfwSwapBuffers(w);
         }
-        
+
         // Clean up.
         glfwTerminate();
         log_info("Thanks for playing!");
