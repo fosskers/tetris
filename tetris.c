@@ -597,7 +597,8 @@ int main(int argc, char** argv) {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-        
+        glfwWindowHint(GLFW_SAMPLES,4);  // Anti-aliasing.
+
         // Make a window.
         GLFWwindow* w = glfwCreateWindow(wWidth,wHeight,"Fetris",NULL,NULL);
         glfwMakeContextCurrent(w);
@@ -614,9 +615,12 @@ int main(int argc, char** argv) {
         glfwSetInputMode(w,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(w,mouse_callback);
         
-        // Depth Testing
+        /* Depth Testing */
         glEnable(GL_DEPTH_TEST);
 
+        /* Enable Anti-Aliasing */
+        glEnable(GL_MULTISAMPLE);
+        
         /* Create Shader Program */
         debug("Making shader program.");
         shaders_t* shaders = cogsShaders("vertex.glsl", "fragment.glsl");
