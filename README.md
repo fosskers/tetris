@@ -1,14 +1,18 @@
-Fetris - Fruity Tetris
-======================
-Welcome to Fruity Tetris! It's basically Tetris.
+3D Tetris
+=========
 
 COMPILATION
 -----------
-Just `make`.
+### On Arch
+
+    sudo pacman -S clang cmake glew glfw
+    cmake .
+    make
 
 ### On Ubuntu
 
-    sudo apt-get install libglfw3-dev libglew-dev clang
+    sudo apt-get install libglfw3-dev libglew-dev clang cmake
+    cmake .
     make
 
 **Note:** `libglfw3-dev` is not available in Trusty's repositories. You can
