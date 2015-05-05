@@ -516,7 +516,7 @@ int refreshBoard() {
 
 /* Removes any solid lines, if it can */
 void lineCheck() {
-        int i,j;
+        int i,j,k;
         bool fullRow = true;
 
         for(i = 0; i < BOARD_CELLS; i+=10) {
@@ -538,10 +538,12 @@ void lineCheck() {
                         }
 
                         // Drop the other pieces.
-                        // This is evil. C is stupid.
-                        for(i = i + j; i < BOARD_CELLS; i++) {
-                                board[i-10] = board[i];
+                        for(k = i + j; k < BOARD_CELLS; k++) {
+                                board[k-10] = board[k];
                         }
+
+                        // Are there any other completed rows?
+                        lineCheck();
 
                         break;
                 }
