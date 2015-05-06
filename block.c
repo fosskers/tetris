@@ -9,6 +9,9 @@
  * Values come in pairs that represent the positions of cell
  * A, B, and D in that order. C is always at (0,0) in Block Space,
  * so we need not list it here.
+ *
+ * Coordinates range from (-2,-2) to (1,1).
+ * (-2,-2) is the bottom-left corner.
  */
 int iBlock[2][6] = {{ -2,0, -1,0, 1,0  },
                     { 0,-2, 0,-1, 0,1  }};
@@ -20,106 +23,79 @@ int lBlock[4][6] = {{ -1,-1, -1,0, 1,0 },
                     { 1,-1, 0,-1, 0,1  },
                     { 1,1, 1,0, -1,0   },
                     { -1,1, 0,1, 0,-1  }};
+int jBlock[4][6] = {{ 1,-1, -1,0, 1,0 },
+                    { -1,-1, 0,-1, 0,1  },
+                    { -1,1, 1,0, -1,0   },
+                    { 1,1, 0,1, 0,-1  }};
+int tBlock[4][6] = {{ -1,0, 0,1, 1,0  },
+                    { 0,1, 1,0, 0,-1  },
+                    { 1,0, 0,-1, -1,0 },
+                    { 0,-1, -1,0, 0,1 }};
 int oBlock[1][6] = {{ -1,0, -1,-1, 0,-1 }};
 
 // Fruit Colours
-GLfloat black[]  = { 0.0, 0.0, 0.0 };
+GLfloat black[]  = { 0.0,  0.0,  0.0  };
 GLfloat purple[] = { 0.76, 0.41, 0.99 };
 GLfloat red[]    = { 1.0,  0.56, 0.56 };
 GLfloat yellow[] = { 1.0,  1.0,  0.52 };
 GLfloat green[]  = { 0.66, 0.99, 0.56 };
 GLfloat orange[] = { 1.0,  0.78, 0.28 };
+GLfloat blue[]   = { 0.27, 0.71, 0.84 };
+GLfloat gray[]   = { 0.5,  0.5,  0.5  };
 
 // --- //
 
-/* Create a I block in the default position */
-block_t* newI() {
+/* Create a new Block */
+block_t* createBlock(int* coords, int vars, Colour c, char name) {
         block_t* b = malloc(sizeof(block_t));
         check_mem(b);
         
-        b->coords = &iBlock[0][0];
-        b->variations = 2;
+        b->coords = coords;
+        b->variations = vars;
         b->curr = 0;
         b->x = 5;
         b->y = 19;
-        b->c = Purple;
-        b->name = 'I';
+        b->c = c;
+        b->name = name;
 
         return b;
  error:
         return NULL;
+}
+
+/* Create a I block in the default position */
+block_t* newI() {
+        return createBlock(&iBlock[0][0], 2, Purple, 'I');
 }
 
 /* Create a S block in the default position */
 block_t* newS() {
-        block_t* b = malloc(sizeof(block_t));
-        check_mem(b);
-
-        b->coords = &sBlock[0][0];
-        b->variations = 2;
-        b->curr = 0;
-        b->x = 5;
-        b->y = 19;
-        b->c = Red;
-        b->name = 'S';
-
-        return b;
- error:
-        return NULL;
+        return createBlock(&sBlock[0][0], 2, Red, 'S');
 }
 
 /* Create a Z block in the default position */
 block_t* newZ() {
-        block_t* b = malloc(sizeof(block_t));
-        check_mem(b);
-
-        b->coords = &zBlock[0][0];
-        b->variations = 2;
-        b->curr = 0;
-        b->x = 5;
-        b->y = 19;
-        b->c = Yellow;
-        b->name = 'Z';
-
-        return b;
- error:
-        return NULL;
+        return createBlock(&zBlock[0][0], 2, Yellow, 'Z');
 }
 
 /* Create a L block in the default position */
 block_t* newL() {
-        block_t* b = malloc(sizeof(block_t));
-        check_mem(b);
+        return createBlock(&lBlock[0][0], 4, Green, 'L');
+}
 
-        b->coords = &lBlock[0][0];
-        b->variations = 4;
-        b->curr = 0;
-        b->x = 5;
-        b->y = 19;
-        b->c = Green;
-        b->name = 'L';
+/* Create a J block in the default position */
+block_t* newJ() {
+        return createBlock(&jBlock[0][0], 4, Blue, 'J');
+}
 
-        return b;
- error:
-        return NULL;
+/* Create a T block in the default position */
+block_t* newT() {
+        return createBlock(&tBlock[0][0], 4, Gray, 'T');
 }
 
 /* Create a O block (a square) in the default position */
 block_t* newO() {
-        block_t* b = malloc(sizeof(block_t));
-        check_mem(b);
-
-        b->coords = &oBlock[0][0];
-        b->variations = 1;
-        b->curr = 0;
-        b->x = 5;
-        b->y = 19;
-        b->c = Orange;
-        b->name = 'O';
-
-        return b;
- error:
-        return NULL;
+        return createBlock(&oBlock[0][0], 1, Orange, 'O');
 }
 
 /* Generate a random Colour */
@@ -147,6 +123,12 @@ GLfloat* ctof(Colour c) {
         case Orange:
                 colour = orange;
                 break;
+        case Blue:
+                colour = blue;
+                break;
+        case Gray:
+                colour = gray;
+                break;
         default:
                 colour = black;  // You should never see this!
         }
@@ -157,7 +139,7 @@ GLfloat* ctof(Colour c) {
 /* Generate a random Block */
 block_t* randBlock() {
         block_t* b = NULL;
-        int choice = rand() % 5;
+        int choice = rand() % 7;
 
         switch(choice) {
         case 0:
@@ -171,6 +153,12 @@ block_t* randBlock() {
                 break;
         case 3:
                 b = newO();
+                break;
+        case 4:
+                b = newJ();
+                break;
+        case 5:
+                b = newT();
                 break;
         default:
                 b = newI();
@@ -202,8 +190,17 @@ block_t* rotateBlock(block_t* b) {
         case 'O':
                 // O block doesn't rotate.
                 break;
-        default:
+        case 'J':
+                b->coords = &jBlock[b->curr][0];
+                break;
+        case 'L':
                 b->coords = &lBlock[b->curr][0];
+                break;
+        case 'T':
+                b->coords = &tBlock[b->curr][0];
+                break;
+        default:
+                sentinel("You should never see this.");
         }
 
         return b;

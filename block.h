@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 
-typedef enum { None, Purple, Red, Yellow, Green, Orange } Colour;
+typedef enum { None, Purple, Red, Yellow, Green, Orange, Blue, Gray } Colour;
 
 typedef struct block_t {
         // Block Shape/Rotation
@@ -21,6 +21,9 @@ typedef struct block_t {
 
 // --- //
 
+/* Create a new Block */
+block_t* createBlock(int* coords, int vars, Colour c, char name);
+
 /* Create a I block in the default position */
 block_t* newI();
 
@@ -32,6 +35,12 @@ block_t* newZ();
 
 /* Create a L block in the default position */
 block_t* newL();
+
+/* Create a J block in the default position */
+block_t* newJ();
+
+/* Create a T block in the default position */
+block_t* newT();
 
 /* Create a O block (a square) in the default position */
 block_t* newO();

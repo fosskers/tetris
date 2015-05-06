@@ -32,7 +32,7 @@ int refreshBoard();
 bool gameOver = false;
 bool running  = true;
 bool keys[1024];
-GLuint wWidth  = 400;
+GLuint wWidth  = 600;
 GLuint wHeight = 720;
 
 // Buffer Objects
@@ -627,7 +627,7 @@ int main(int argc, char** argv) {
 
         /* Model Matrix for Game */
         matrix_t* model = coglMIdentity(4);
-        model = coglM4Translate(model,-200,-360,0);
+        model = coglM4Translate(model,-300,-360,0);
         model = coglMScale(model,2.0/450);
         check(model, "Model creation failed.");
         
