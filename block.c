@@ -41,7 +41,7 @@ GLfloat yellow[] = { 1.0,  1.0,  0.52 };
 GLfloat green[]  = { 0.66, 0.99, 0.56 };
 GLfloat orange[] = { 1.0,  0.78, 0.28 };
 GLfloat blue[]   = { 0.27, 0.71, 0.84 };
-GLfloat gray[]   = { 0.5,  0.5,  0.5  };
+GLfloat gray[]   = { 0.75,  0.75,  0.75  };
 
 // --- //
 

@@ -641,7 +641,7 @@ int main(int argc, char** argv) {
 
         /* Lighting settings */
         glUseProgram(shaderProgram);
-        matrix_t* lightPos = coglV3(1.2f,1.0f,2.0f);
+        matrix_t* lightPos = coglV3(0.5f,0.5f,2.0f);
         GLuint lghtLoc = glGetUniformLocation(shaderProgram,"lightPos");
         GLuint modlLoc = glGetUniformLocation(shaderProgram,"model");
         GLuint viewLoc = glGetUniformLocation(shaderProgram,"view");
