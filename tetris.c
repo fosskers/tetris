@@ -15,11 +15,11 @@
 
 // --- //
 
-GLfloat* blockToCoords();
+GLfloat* blockToCoords(block_t*);
 void initBoard();
 void clearBoard();
 void newBlock();
-void refreshBlock();
+void refreshBlock(block_t*);
 int refreshBoard();
 
 // --- //
@@ -51,7 +51,8 @@ GLfloat lastKey   = 0.0f;
 
 camera_t* camera;
 matrix_t* view;
-block_t*  block;   // The Tetris block.
+block_t*  currBlock;  // The Tetris block.
+block_t*  nextBlock;  // The next block that will appear.
 Colour board[BOARD_CELLS];  // The Board, represented as colours.
 
 // --- //
@@ -82,12 +83,13 @@ void resetGame() {
 }
 
 void newBlock() {
-        block = randBlock();
-        refreshBlock();
+        currBlock = nextBlock;
+        nextBlock = randBlock();
+        refreshBlock(currBlock);
 }
 
-void refreshBlock() {
-        GLfloat* coords = blockToCoords();
+void refreshBlock(block_t* b) {
+        GLfloat* coords = blockToCoords(b);
         
         glBindVertexArray(bVAO);
         glBindBuffer(GL_ARRAY_BUFFER, bVBO);
@@ -123,26 +125,26 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                         resetCamera();
                 } else if(key == GLFW_KEY_R) {
                         resetGame();
-                } else if(key == GLFW_KEY_LEFT && block->x > 0) {
-                        if(isColliding(block,board) != Left) {
-                                block->x -= 1;
-                                refreshBlock();
+                } else if(key == GLFW_KEY_LEFT && currBlock->x > 0) {
+                        if(isColliding(currBlock,board) != Left) {
+                                currBlock->x -= 1;
+                                refreshBlock(currBlock);
                         }
-                } else if(key == GLFW_KEY_RIGHT && block->x < 9) {
-                        if(isColliding(block,board) != Right) {
-                                block->x += 1;
-                                refreshBlock();
+                } else if(key == GLFW_KEY_RIGHT && currBlock->x < 9) {
+                        if(isColliding(currBlock,board) != Right) {
+                                currBlock->x += 1;
+                                refreshBlock(currBlock);
                         }
-                } else if(key == GLFW_KEY_DOWN && block->y > 0) {
-                        block->y -= 1;
-                        refreshBlock();
-                } else if(key == GLFW_KEY_UP && block->y < 19) {
-                        block_t* copy = copyBlock(block);
+                } else if(key == GLFW_KEY_DOWN && currBlock->y > 0) {
+                        currBlock->y -= 1;
+                        refreshBlock(currBlock);
+                } else if(key == GLFW_KEY_UP && currBlock->y < 19) {
+                        block_t* copy = copyBlock(currBlock);
                         copy = rotateBlock(copy);
                         if(isColliding(copy,board) == Clear) {
-                                block = rotateBlock(block);
+                                currBlock = rotateBlock(currBlock);
                                 destroyBlock(copy);
-                                refreshBlock();
+                                refreshBlock(currBlock);
                         } else {
                                 debug("Flip would collide!");
                         }
@@ -237,7 +239,7 @@ GLfloat* gridLocToCoords(int x, int y, Colour colour) {
 }
 
 /* Produce locations and colours based on the current global Block */
-GLfloat* blockToCoords() {
+GLfloat* blockToCoords(block_t* block) {
         GLfloat* temp1;
         GLfloat* temp2;
         GLfloat* cs = NULL;
@@ -279,13 +281,15 @@ GLfloat* blockToCoords() {
 
 /* Initialize the Block */
 int initBlock() {
-        block = randBlock();
-        check(block, "Failed to initialize first Block.");
-        debug("Got a: %c", block->name);
+        currBlock = randBlock();
+        nextBlock = randBlock();
+        check(currBlock && nextBlock, "Failed to initialize first Blocks.");
+        debug("First Block: %c", currBlock->name);
+        debug("Next Block: %c", nextBlock->name);
 
         debug("Initializing Block.");
 
-        GLfloat* coords = blockToCoords();
+        GLfloat* coords = blockToCoords(currBlock);
         
         // Set up VAO/VBO
         glGenVertexArrays(1,&bVAO);
@@ -321,7 +325,6 @@ int initBlock() {
         return 0;
 }
 
-/* Initialize the Grid */
 // Insert TRON pun here.
 void initGrid() {
         GLfloat gridPoints[18 * (11 + 21)];
@@ -544,13 +547,13 @@ void scrollBlock() {
                 return;
         }
         
-        if(isColliding(block, board) != Bottom) {
+        if(isColliding(currBlock, board) != Bottom) {
                 if(currTime - lastTime > 0.5) {
 
                         lastTime = currTime;
-                        block->y -= 1;
+                        currBlock->y -= 1;
 
-                        GLfloat* coords = blockToCoords();
+                        GLfloat* coords = blockToCoords(currBlock);
         
                         glBindVertexArray(bVAO);
                         glBindBuffer(GL_ARRAY_BUFFER, bVBO);
@@ -559,14 +562,14 @@ void scrollBlock() {
                                         coords);
                         glBindVertexArray(0);
                 }
-        } else if(block->y == 19) {
+        } else if(currBlock->y == 19) {
                 gameOver = true;
         } else {
-                cells = blockCells(block);
+                cells = blockCells(currBlock);
 
                 // Add the Block's cells to the master Board
                 for(i = 0; i < 8; i+=2) {
-                        board[cells[i] + 10*cells[i+1]] = block->c;
+                        board[cells[i] + 10*cells[i+1]] = currBlock->c;
                 }
 
                 lineCheck();
