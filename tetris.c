@@ -19,7 +19,7 @@ GLfloat* blockToCoords(block_t*);
 void initBoard();
 void clearBoard();
 void newBlock();
-void refreshBlock(block_t*);
+void refreshBlock(block_t* b, GLuint VAO, GLuint VBO);
 int refreshBoard();
 
 // --- //
@@ -35,11 +35,17 @@ bool keys[1024];
 GLuint wWidth  = 600;
 GLuint wHeight = 720;
 
-// Buffer Objects
+/* Buffer Objects */
+// Grid
 GLuint gVAO;
 GLuint gVBO;
+// (Current) Block
 GLuint bVAO;
 GLuint bVBO;
+// (Next) Block
+GLuint nVAO;
+GLuint nVBO;
+// Board
 GLuint fVAO;
 GLuint fVBO;
 
@@ -85,14 +91,15 @@ void resetGame() {
 void newBlock() {
         currBlock = nextBlock;
         nextBlock = randBlock();
-        refreshBlock(currBlock);
+        refreshBlock(currBlock, bVAO, bVBO);
+        refreshBlock(nextBlock, nVAO, nVBO);
 }
 
-void refreshBlock(block_t* b) {
+void refreshBlock(block_t* b, GLuint VAO, GLuint VBO) {
         GLfloat* coords = blockToCoords(b);
         
-        glBindVertexArray(bVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, bVBO);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, 
                         CELL_FLOATS * 4 * sizeof(GLfloat), coords);
         glBindVertexArray(0);
@@ -128,23 +135,23 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                 } else if(key == GLFW_KEY_LEFT && currBlock->x > 0) {
                         if(isColliding(currBlock,board) != Left) {
                                 currBlock->x -= 1;
-                                refreshBlock(currBlock);
+                                refreshBlock(currBlock, bVAO, bVBO);
                         }
                 } else if(key == GLFW_KEY_RIGHT && currBlock->x < 9) {
                         if(isColliding(currBlock,board) != Right) {
                                 currBlock->x += 1;
-                                refreshBlock(currBlock);
+                                refreshBlock(currBlock, bVAO, bVBO);
                         }
                 } else if(key == GLFW_KEY_DOWN && currBlock->y > 0) {
                         currBlock->y -= 1;
-                        refreshBlock(currBlock);
+                        refreshBlock(currBlock, bVAO, bVBO);
                 } else if(key == GLFW_KEY_UP && currBlock->y < 19) {
                         block_t* copy = copyBlock(currBlock);
                         copy = rotateBlock(copy);
                         if(isColliding(copy,board) == Clear) {
                                 currBlock = rotateBlock(currBlock);
                                 destroyBlock(copy);
-                                refreshBlock(currBlock);
+                                refreshBlock(currBlock, bVAO, bVBO);
                         } else {
                                 debug("Flip would collide!");
                         }
@@ -289,15 +296,17 @@ int initBlock() {
 
         debug("Initializing Block.");
 
-        GLfloat* coords = blockToCoords(currBlock);
-        
+        GLfloat* c_coords = blockToCoords(currBlock);
+        GLfloat* n_coords = blockToCoords(nextBlock);
+
+        /* Current Block */
         // Set up VAO/VBO
         glGenVertexArrays(1,&bVAO);
         glBindVertexArray(bVAO);
         glGenBuffers(1,&bVBO);
         glBindBuffer(GL_ARRAY_BUFFER,bVBO);
         glBufferData(GL_ARRAY_BUFFER,
-                     CELL_FLOATS * 4 * sizeof(GLfloat),coords,
+                     CELL_FLOATS * 4 * sizeof(GLfloat),c_coords,
                      GL_DYNAMIC_DRAW);
 
         /* Tell OpenGL how to process Block Vertices */
@@ -318,7 +327,35 @@ int initBlock() {
         glBindVertexArray(0);  // Reset the VAO binding.
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        debug("Block initialized.");
+        /* Next Block */
+        // Set up VAO/VBO
+        glGenVertexArrays(1,&nVAO);
+        glBindVertexArray(nVAO);
+        glGenBuffers(1,&nVBO);
+        glBindBuffer(GL_ARRAY_BUFFER,nVBO);
+        glBufferData(GL_ARRAY_BUFFER,
+                     CELL_FLOATS * 4 * sizeof(GLfloat),n_coords,
+                     GL_DYNAMIC_DRAW);
+
+        /* Tell OpenGL how to process Block Vertices */
+        // Vertex location
+        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),(GLvoid*)0);
+        glEnableVertexAttribArray(0);
+        // Vertex colour
+        glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(1);
+        // Vertex normal
+        glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+        glBindVertexArray(0);  // Reset the VAO binding.
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        debug("Blocks initialized.");
 
         return 1;
  error:
@@ -628,11 +665,17 @@ int main(int argc, char** argv) {
         /* Set initial Camera state */
         resetCamera();
 
-        /* Model Matrix for Game */
+        /* Model Matrix for Current Block and Grid */
         matrix_t* model = coglMIdentity(4);
         model = coglM4Translate(model,-8,-10,0);
         model = coglMScale(model,0.15);
         check(model, "Model creation failed.");
+
+        /* Model Matrix for Next Block */
+        matrix_t* nModel = coglMIdentity(4);
+        nModel = coglM4Translate(nModel,0,-10,0);
+        nModel = coglMScale(nModel,0.15);
+        check(nModel, "Next-Block Model creation failed.");
         
         /* Projection Matrix */
         matrix_t* proj = coglMPerspectiveP(tau/8, 
@@ -696,6 +739,12 @@ int main(int argc, char** argv) {
                 // Draw Board
                 glBindVertexArray(fVAO);
                 glDrawArrays(GL_TRIANGLES,0,7200);
+                glBindVertexArray(0);
+
+                // Draw Next Block
+                glUniformMatrix4fv(modlLoc,1,GL_FALSE,nModel->m);
+                glBindVertexArray(nVAO);
+                glDrawArrays(GL_TRIANGLES,0,36 * 4);
                 glBindVertexArray(0);
 
                 // Always comes last.
