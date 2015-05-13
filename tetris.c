@@ -39,6 +39,9 @@ GLuint wHeight = 720;
 // Grid
 GLuint gVAO;
 GLuint gVBO;
+// Small Grid
+GLuint sgVAO;
+GLuint sgVBO;
 // (Current) Block
 GLuint bVAO;
 GLuint bVBO;
@@ -454,6 +457,98 @@ void initGrid() {
         debug("Grid initialized.");
 }
 
+void initSmallGrid() {
+        // 5 each of horizontal and vertical lines.
+        GLfloat gridPoints[18 * (5 + 5)];
+        int i;
+
+        debug("Initializing Grid.");
+
+        // Vertical lines
+	for (i = 0; i < 5; i++) {
+                // Bottom coord
+                gridPoints[18*i]     = i;
+                gridPoints[18*i + 1] = 0.0;
+                gridPoints[18*i + 2] = -0.5;
+                // Bottom colour
+                gridPoints[18*i + 3] = 1;
+                gridPoints[18*i + 4] = 1;
+                gridPoints[18*i + 5] = 1;
+                // Bottom normal
+                gridPoints[18*i + 6] = 0;
+                gridPoints[18*i + 7] = 0;
+                gridPoints[18*i + 8] = 1;
+                // Top coord
+                gridPoints[18*i + 9]  = i;
+                gridPoints[18*i + 10] = 4.0;
+                gridPoints[18*i + 11] = -0.5;
+                // Top colour
+                gridPoints[18*i + 12] = 1;
+                gridPoints[18*i + 13] = 1;
+                gridPoints[18*i + 14] = 1;
+                // Top normal
+                gridPoints[18*i + 15] = 0;
+                gridPoints[18*i + 16] = 0;
+                gridPoints[18*i + 17] = 1;
+	}
+
+	// Horizontal lines.
+	for (i = 0; i < 5; i++) {
+                // Left coord
+                gridPoints[90 + 18*i]     = 0.0;
+                gridPoints[90 + 18*i + 1] = i;
+                gridPoints[90 + 18*i + 2] = -0.5;
+                // Left colour
+                gridPoints[90 + 18*i + 3] = 1;
+                gridPoints[90 + 18*i + 4] = 1;
+                gridPoints[90 + 18*i + 5] = 1;
+                // Left normal
+                gridPoints[90 + 18*i + 6] = 0;
+                gridPoints[90 + 18*i + 7] = 0;
+                gridPoints[90 + 18*i + 8] = 1;
+                // Right coord
+                gridPoints[90 + 18*i + 9]  = 4.0;
+                gridPoints[90 + 18*i + 10] = i;
+                gridPoints[90 + 18*i + 11] = -0.5;
+                // Right colour
+                gridPoints[90 + 18*i + 12] = 1;
+                gridPoints[90 + 18*i + 13] = 1;
+                gridPoints[90 + 18*i + 14] = 1;
+                // Right normal
+                gridPoints[90 + 18*i + 15] = 0;
+                gridPoints[90 + 18*i + 16] = 0;
+                gridPoints[90 + 18*i + 17] = 1;
+	}
+
+        // Set up VAO/VBO
+        glGenVertexArrays(1,&sgVAO);
+        glBindVertexArray(sgVAO);
+        glGenBuffers(1,&sgVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, sgVBO);
+        glBufferData(GL_ARRAY_BUFFER,sizeof(gridPoints),
+                     gridPoints,GL_STATIC_DRAW);
+
+        /* Tell OpenGL how to process Block Vertices */
+        // Vertex location
+        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),(GLvoid*)0);
+        glEnableVertexAttribArray(0);
+        // Vertex colour
+        glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(1);
+        // Vertex normal
+        glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,
+                              9 * sizeof(GLfloat),
+                              (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+        glBindVertexArray(0);  // Reset the VAO binding.
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        debug("Small Grid initialized.");
+}
+
 /* Initialize the game board */
 void initBoard() {
         debug("Initializing Board.");
@@ -660,6 +755,7 @@ int main(int argc, char** argv) {
         /* Initialize Board, Grid, and first Block */
         initBoard();
         initGrid();
+        initSmallGrid();
         quiet_check(initBlock());
 
         /* Set initial Camera state */
@@ -673,9 +769,15 @@ int main(int argc, char** argv) {
 
         /* Model Matrix for Next Block */
         matrix_t* nModel = coglMIdentity(4);
-        nModel = coglM4Translate(nModel,0,-10,0);
+        nModel = coglM4Translate(nModel,1,-12,0);
         nModel = coglMScale(nModel,0.15);
         check(nModel, "Next-Block Model creation failed.");
+
+        /* Model Matrix for Small Grid */
+        matrix_t* sgModel = coglMIdentity(4);
+        sgModel = coglM4Translate(sgModel,4,5,0);
+        sgModel = coglMScale(sgModel,0.15);
+        check(sgModel, "Small Grid Model creation failed.");
         
         /* Projection Matrix */
         matrix_t* proj = coglMPerspectiveP(tau/8, 
@@ -728,7 +830,7 @@ int main(int argc, char** argv) {
 
                 // Draw Grid
                 glBindVertexArray(gVAO);
-                glDrawArrays(GL_LINES, 0, 128);
+                glDrawArrays(GL_LINES, 0, 64);
                 glBindVertexArray(0);
                 
                 // Draw Block
@@ -745,6 +847,12 @@ int main(int argc, char** argv) {
                 glUniformMatrix4fv(modlLoc,1,GL_FALSE,nModel->m);
                 glBindVertexArray(nVAO);
                 glDrawArrays(GL_TRIANGLES,0,36 * 4);
+                glBindVertexArray(0);
+
+                // Draw Small Grid
+                glUniformMatrix4fv(modlLoc,1,GL_FALSE,sgModel->m);
+                glBindVertexArray(sgVAO);
+                glDrawArrays(GL_LINES, 0, 20);
                 glBindVertexArray(0);
 
                 // Always comes last.
