@@ -28,12 +28,22 @@ int refreshBoard();
 // 9 floats per vertex, 3 vertices per triangle, 12 triangles per Cell
 #define CELL_FLOATS 9 * 3 * 12
 #define TOTAL_FLOATS BOARD_CELLS * CELL_FLOATS
+// Points per clear type, later multiplied by level
+#define SINGLE 100
+#define DOUBLE 300
+#define TRIPLE 500
+#define TETRIS 800
 
+// --- //
+
+// GLOBAL STATE
 bool gameOver = false;
 bool running  = true;
 bool keys[1024];
 GLuint wWidth  = 600;
 GLuint wHeight = 720;
+int score = 0;
+int level = 1;
 
 /* Buffer Objects */
 // Grid
@@ -166,6 +176,13 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
 
 void mouse_callback(GLFWwindow* w, double xpos, double ypos) {
         cogcPan(camera,xpos,ypos);
+}
+
+/* Award points based on number of rows cleared at once */
+int getPoints(int rec_depth) {
+        int points[] = { 0, SINGLE, DOUBLE, TRIPLE, TETRIS };
+
+        return points[rec_depth];
 }
 
 GLfloat* gridLocToCoords(int x, int y, Colour colour) {
@@ -605,8 +622,6 @@ int refreshBoard() {
         GLuint i,j,k;
         GLfloat* cellData;
 
-        debug("Refreshing Board...");
-        
         GLfloat* coords = malloc(sizeof(GLfloat) * TOTAL_FLOATS);
         check_mem(coords);
 
@@ -633,7 +648,7 @@ int refreshBoard() {
 }
 
 /* Removes any solid lines, if it can */
-void lineCheck() {
+int lineCheck(int rec_depth) {
         int i,j,k;
         bool fullRow = true;
 
@@ -661,11 +676,13 @@ void lineCheck() {
                         }
 
                         // Are there any other completed rows?
-                        lineCheck();
+                        rec_depth = lineCheck(rec_depth + 1);
 
                         break;
                 }
         }
+
+        return rec_depth;
 }
 
 /* Scrolls the Block naturally down */
@@ -704,9 +721,11 @@ void scrollBlock() {
                         board[cells[i] + 10*cells[i+1]] = currBlock->c;
                 }
 
-                lineCheck();
+                score += level * getPoints(lineCheck(0));
                 newBlock();
                 refreshBoard();
+
+                log_info("Score: %d", score);
         }
 }
 
