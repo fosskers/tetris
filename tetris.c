@@ -1,3 +1,10 @@
+/* tetris
+ * author:   Colin Woodbury
+ * modified: 2015 May 15 @ 09:33
+ *
+ * A simple 3D Tetris game written with OpenGL (uses GLFW).
+ */
+
 #include <GL/glew.h>  // This must be before other GL libs.
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -145,6 +152,11 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                         resetCamera();
                 } else if(key == GLFW_KEY_R) {
                         resetGame();
+                } else if(key == GLFW_KEY_B) {
+                        rotateColours();
+                        refreshBoard();
+                        refreshBlock(currBlock, bVAO, bVBO);
+                        refreshBlock(nextBlock, nVAO, nVBO);
                 } else if(key == GLFW_KEY_LEFT && currBlock->x > 0) {
                         if(isColliding(currBlock,board) != Left) {
                                 currBlock->x -= 1;
@@ -775,6 +787,7 @@ int main(int argc, char** argv) {
         initBoard();
         initGrid();
         initSmallGrid();
+        rotateColours();
         quiet_check(initBlock());
 
         /* Set initial Camera state */

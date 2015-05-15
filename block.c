@@ -41,7 +41,7 @@ GLfloat yellow[] = { 1.0,  1.0,  0.52 };
 GLfloat green[]  = { 0.66, 0.99, 0.56 };
 GLfloat orange[] = { 1.0,  0.78, 0.28 };
 GLfloat blue[]   = { 0.27, 0.71, 0.84 };
-GLfloat gray[]   = { 0.75,  0.75,  0.75  };
+GLfloat gray[]   = { 0.75, 0.75, 0.75  };
 
 // --- //
 
@@ -101,6 +101,19 @@ block_t* newO() {
 /* Generate a random Colour */
 Colour randColour() {
         return (rand() % 5) + 1;
+}
+
+/* Alter which `Colour` corresponds to which RGB values */
+void rotateColours() {
+        GLfloat temp[] = { purple[0], purple[1], purple[2] };
+
+        purple[0] = red[0]; purple[1] = red[1]; purple[2] = red[2];
+        red[0] = yellow[0]; red[1] = yellow[1]; red[2] = yellow[2];
+        yellow[0] = green[0]; yellow[1] = green[1]; yellow[2] = green[2];
+        green[0] = orange[0]; green[1] = orange[1]; green[2] = orange[2];
+        orange[0] = blue[0]; orange[1] = blue[1]; orange[2] = blue[2];
+        blue[0] = gray[0]; blue[1] = gray[1]; blue[2] = gray[2];
+        gray[0] = temp[0]; gray[1] = temp[1]; gray[2] = temp[2];
 }
 
 /* Get the colour of a Fruit. Cannot fail */

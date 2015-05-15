@@ -48,6 +48,9 @@ block_t* newO();
 /* Generate a random Colour */
 Colour randColour();
 
+/* Alter which `Colour` corresponds to which RGB values */
+void rotateColours();
+
 /* Get the float values for a Colour. Cannot fail */
 GLfloat* ctof(Colour c);
 
