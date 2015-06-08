@@ -1,6 +1,6 @@
 /* tetris
  * author:   Colin Woodbury
- * modified: 2015 May 15 @ 09:33
+ * modified: 2015 June  7 @ 20:07
  *
  * A simple 3D Tetris game written with OpenGL (uses GLFW).
  */
@@ -18,6 +18,7 @@
 #include "cog/camera/camera.h"
 #include "cog/dbg.h"
 #include "cog/shaders/shaders.h"
+#include "score.h"
 #include "util.h"
 
 // --- //
