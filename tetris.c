@@ -1,6 +1,7 @@
 /* tetris
  * author:   Colin Woodbury
- * modified: 2015 June  7 @ 20:07
+ * created:  2015 February
+ * modified: 2015 June  8 @ 20:28
  *
  * A simple 3D Tetris game written with OpenGL (uses GLFW).
  */
@@ -41,6 +42,7 @@ int refreshBoard();
 #define DOUBLE 300
 #define TRIPLE 500
 #define TETRIS 800
+#define PRISMS 4
 
 // --- //
 
@@ -69,6 +71,9 @@ GLuint nVBO;
 // Board
 GLuint fVAO;
 GLuint fVBO;
+// Counter Prisms
+GLuint cVAO[PRISMS];
+GLuint cVBO[PRISMS];
 
 // Timing Info
 GLfloat deltaTime = 0.0f;
@@ -579,6 +584,44 @@ void initSmallGrid() {
         debug("Small Grid initialized.");
 }
 
+/* Initialize the counter prisms */
+void initCounters() {
+        GLuint i;
+
+        debug("Initializing Score Counters...");
+
+        for(i = 0; i < PRISMS; i++) {
+                // Set up VAO/VBO
+                glGenVertexArrays(1,&cVAO[i]);
+                glBindVertexArray(cVAO[i]);
+                glGenBuffers(1,&cVBO[i]);
+                glBindBuffer(GL_ARRAY_BUFFER,cVBO[i]);
+
+                glBufferData(GL_ARRAY_BUFFER,sizeof(prism),
+                             prism,GL_DYNAMIC_DRAW);
+
+                /* Tell OpenGL how to process Block Vertices */
+                // Vertex location
+                glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,
+                                      9 * sizeof(GLfloat),(GLvoid*)0);
+                glEnableVertexAttribArray(0);
+                // Vertex colour
+                glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,
+                                      9 * sizeof(GLfloat),
+                                      (GLvoid*)(3 * sizeof(GLfloat)));
+                glEnableVertexAttribArray(1);
+                // Vertex normal
+                glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,
+                                      9 * sizeof(GLfloat),
+                                      (GLvoid*)(6 * sizeof(GLfloat)));
+                glEnableVertexAttribArray(2);
+                glBindVertexArray(0);  // Reset the VAO binding.
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
+        debug("Score counters initialized.");
+}
+
 /* Initialize the game board */
 void initBoard() {
         debug("Initializing Board.");
@@ -788,6 +831,7 @@ int main(int argc, char** argv) {
         initBoard();
         initGrid();
         initSmallGrid();
+        initCounters();
         rotateColours();
         quiet_check(initBlock());
 
@@ -811,6 +855,12 @@ int main(int argc, char** argv) {
         sgModel = coglM4Translate(sgModel,4,5,0);
         sgModel = coglMScale(sgModel,0.15);
         check(sgModel, "Small Grid Model creation failed.");
+
+        /* Model Matrix for Counters */
+        matrix_t* cModel = coglMIdentity(4);
+        cModel = coglM4Translate(cModel,3,0,0);
+        cModel = coglMScale(cModel,0.3);
+        check(cModel, "Model creation for score counters failed.");
         
         /* Projection Matrix */
         matrix_t* proj = coglMPerspectiveP(tau/8, 
@@ -886,6 +936,12 @@ int main(int argc, char** argv) {
                 glUniformMatrix4fv(modlLoc,1,GL_FALSE,sgModel->m);
                 glBindVertexArray(sgVAO);
                 glDrawArrays(GL_LINES, 0, 20);
+                glBindVertexArray(0);
+
+                // Draw Score Counters
+                glUniformMatrix4fv(modlLoc,1,GL_FALSE,cModel->m);
+                glBindVertexArray(cVAO[0]);
+                glDrawArrays(GL_TRIANGLES, 0, 120);
                 glBindVertexArray(0);
 
                 // Always comes last.
