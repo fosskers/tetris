@@ -858,8 +858,8 @@ int main(int argc, char** argv) {
 
         /* Model Matrix for Counters */
         matrix_t* cModel = coglMIdentity(4);
-        cModel = coglM4Translate(cModel,3,0,0);
-        cModel = coglMScale(cModel,0.3);
+        cModel = coglM4Translate(cModel,1.5,0,0);
+        cModel = coglMScale(cModel,0.6);
         check(cModel, "Model creation for score counters failed.");
         
         /* Projection Matrix */
