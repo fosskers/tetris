@@ -1,9 +1,15 @@
 /* tetris
  * author:   Colin Woodbury
  * created:  2015 February
- * modified: 2015 June  8 @ 20:28
+ * modified: 2015 July 26 @ 16:09
  *
  * A simple 3D Tetris game written with OpenGL (uses GLFW).
+ *
+ * Next steps:
+ * - Make texture of numbers. Use `GL_CLAMP_TO_BORDER` to keep the sides
+ *   of the prism clear.
+ * - For creating circles:
+ *   blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
  */
 
 #include <GL/glew.h>  // This must be before other GL libs.
@@ -135,6 +141,7 @@ void refreshBlock(block_t* b, GLuint VAO, GLuint VBO) {
 
 void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
         GLfloat currentTime = glfwGetTime();
+        Collision col = Clear;
 
         // Update key timing.
         keyDelta = currentTime - lastKey;
@@ -164,18 +171,26 @@ void key_callback(GLFWwindow* w, int key, int code, int action, int mode) {
                         refreshBlock(currBlock, bVAO, bVBO);
                         refreshBlock(nextBlock, nVAO, nVBO);
                 } else if(key == GLFW_KEY_LEFT && currBlock->x > 0) {
-                        if(isColliding(currBlock,board) != Left) {
+                        col = isColliding(currBlock,board);
+
+                        if(!isLeft(col)) {
                                 currBlock->x -= 1;
                                 refreshBlock(currBlock, bVAO, bVBO);
                         }
                 } else if(key == GLFW_KEY_RIGHT && currBlock->x < 9) {
-                        if(isColliding(currBlock,board) != Right) {
+                        col = isColliding(currBlock,board);
+
+                        if(!isRight(col)) {
                                 currBlock->x += 1;
                                 refreshBlock(currBlock, bVAO, bVBO);
                         }
                 } else if(key == GLFW_KEY_DOWN && currBlock->y > 0) {
-                        currBlock->y -= 1;
-                        refreshBlock(currBlock, bVAO, bVBO);
+                        col = isColliding(currBlock,board);
+
+                        if(!isBottom(col)) {
+                                currBlock->y -= 1;
+                                refreshBlock(currBlock, bVAO, bVBO);
+                        }
                 } else if(key == GLFW_KEY_UP && currBlock->y < 19) {
                         block_t* copy = copyBlock(currBlock);
                         copy = rotateBlock(copy);
@@ -744,21 +759,35 @@ int lineCheck(int rec_depth) {
 /* Scrolls the Block naturally down */
 void scrollBlock() {
         static double lastTime = 0;
+        static double hitTime = 0;
+        static bool touching_bottom = false;
         double currTime = glfwGetTime();
         int* cells = NULL;
         int i;
+        GLfloat* coords = NULL;
+        Collision col = Clear;
 
+        /* Don't scroll the block is the game is paused */
         if(!running) {
                 return;
         }
-        
-        if(isColliding(currBlock, board) != Bottom) {
-                if(currTime - lastTime > 0.5) {
 
+        col = isColliding(currBlock, board);
+        
+        if(!isBottom(col)) {
+                touching_bottom = false;
+
+                /* 2015 July 26 @ 16:19
+                 * This comparison determines the scroll speed.
+                 *
+                 * If this were a global variable, you could control
+                 * the scroll speed for different levels.
+                 */
+                if(currTime - lastTime > 0.5) {
                         lastTime = currTime;
                         currBlock->y -= 1;
 
-                        GLfloat* coords = blockToCoords(currBlock);
+                        coords = blockToCoords(currBlock);
         
                         glBindVertexArray(bVAO);
                         glBindBuffer(GL_ARRAY_BUFFER, bVBO);
@@ -767,22 +796,38 @@ void scrollBlock() {
                                         coords);
                         glBindVertexArray(0);
                 }
-        } else if(currBlock->y == 19) {
-                gameOver = true;
         } else {
-                cells = blockCells(currBlock);
+                if(!touching_bottom) {
+                        touching_bottom = true;
+                        hitTime = glfwGetTime();
+                } else if(touching_bottom && currTime - hitTime < 0.5) {
+                        /* Allow them to shift around before it sticks */
+                        coords = blockToCoords(currBlock);
+        
+                        glBindVertexArray(bVAO);
+                        glBindBuffer(GL_ARRAY_BUFFER, bVBO);
+                        glBufferSubData(GL_ARRAY_BUFFER, 0, 
+                                        CELL_FLOATS * 4 * sizeof(GLfloat),
+                                        coords);
+                        glBindVertexArray(0);
+                } else if(currBlock->y == 19) {
+                        gameOver = true;
+                } else {
+                        /* Can't scroll anymore */
+                        cells = blockCells(currBlock);
 
-                // Add the Block's cells to the master Board
-                for(i = 0; i < 8; i+=2) {
-                        board[cells[i] + 10*cells[i+1]] = currBlock->c;
+                        // Add the Block's cells to the master Board
+                        for(i = 0; i < 8; i+=2) {
+                                board[cells[i] + 10*cells[i+1]] = currBlock->c;
+                        }
+
+                        score += level * getPoints(lineCheck(0));
+                        newBlock();
+                        refreshBoard();
+
+                        log_info("Score: %d", score);
                 }
-
-                score += level * getPoints(lineCheck(0));
-                newBlock();
-                refreshBoard();
-
-                log_info("Score: %d", score);
-        }
+        } 
 }
 
 int main(int argc, char** argv) {
@@ -939,6 +984,7 @@ int main(int argc, char** argv) {
                 glBindVertexArray(0);
 
                 // Draw Score Counters
+                cModel = coglM4Rotate(cModel,tau/256,1,0,0);
                 glUniformMatrix4fv(modlLoc,1,GL_FALSE,cModel->m);
                 glBindVertexArray(cVAO[0]);
                 glDrawArrays(GL_TRIANGLES, 0, 120);

@@ -8,15 +8,31 @@
 Collision isColliding(block_t* b, Colour* board) {
         int* cells = blockCells(b);
 
-        if(collidingDown(cells, board)) {
-                return Bottom;
-        } else if(collidingLeft(cells,board)) {
-                return Left;
-                
-        } else if(collidingRight(cells,board)) {
+        bool bot   = collidingDown(cells, board);
+        bool left  = collidingLeft(cells,board);
+        bool right = collidingRight(cells,board);
+
+        if(bot) {
+                if(left) {
+                        if(right) {
+                                return Total;
+                        } else {
+                                return BotLeft;
+                        }
+                } else if(right) {
+                        return BotRight;
+                } else {
+                        return Bottom;
+                }
+        } else if(left) {
+                if(right) {
+                        return Sides;
+                } else {
+                        return Left;
+                }
+        } else if(right) {
                 return Right;
-        }
-        else {
+        } else {
                 return Clear;
         }
 }
@@ -59,4 +75,19 @@ bool collidingDown(int* cells, Colour* board) {
         }
 
         return false;
+}
+
+/* Is this Collision type any form of `Bottom`? */
+bool isBottom(Collision c) {
+        return (c == Bottom || c == BotLeft || c == BotRight || c == Total);
+}
+
+/* Is this Collision type any form of `Right`? */
+bool isRight(Collision c) {
+        return (c == Right || c == BotRight || c == Sides || c == Total);
+}
+
+/* Is this Collision type any form of `Left`? */
+bool isLeft(Collision c) {
+        return (c == Left || c == BotLeft || c == Sides || c == Total);
 }
