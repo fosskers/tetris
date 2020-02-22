@@ -4,7 +4,7 @@
 
 Whoa! It's 3D!
 
-## CLONING
+## Cloning
 
 This project uses a Git submodule to one of my helper libraries, so please clone
 via:
@@ -13,7 +13,7 @@ via:
 git clone --recursive-submodules https://github.com/fosskers/tetris
 ```
 
-## COMPILATION
+## Compilation
 
 ### On Arch
 
@@ -39,7 +39,7 @@ Keith Winstein's PPA:
 sudo add-apt-repository ppa:keithw/glfw3
 ```
 
-## USAGE
+## Usage
 
 LEFT  - Move the block left.
 
@@ -53,7 +53,7 @@ R     - Reset the game.
 
 C     - Reset the camera.
 
-## CAMERA CONTROLS
+## Camera Control
 
 Use WASD to fly through Camera Space. Your mouse changes the camera angle.
 
