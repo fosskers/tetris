@@ -1,5 +1,9 @@
 # 3D Tetris
 
+![](./tetris.png)
+
+Whoa! It's 3D!
+
 ## CLONING
 
 This project uses a Git submodule to one of my helper libraries, so please clone
